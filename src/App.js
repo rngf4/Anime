@@ -1,22 +1,27 @@
 import React from "react";
-import logo from "./logo.svg";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
+import Root from "./pages/Root";
+import Anime from "./pages/Anime";
+import AnimePlayer from "./pages/AnimePlayer";
+import Search from "./pages/Search";
+import NoMatch from "./pages/NoMatch";
+import Navigation from "./components/Navigation";
 
 function App() {
   return (
-    <div className="max-w-md mx-auto flex p-6 bg-gray-100 mt-10 rounded-lg shadow-xl">
-      <div className="ml-6 pt-1">
-        <h1 className="text-2xl text-blue-700 leading-tight text-center">
-          Tailwind and Create React App
-        </h1>
-        <p className="text-base text-gray-700 leading-normal text-center">
-          A complete boilerplate for your next tailwind and React project!
-        </p>
-        <div>
-          <img src={logo} alt="Tailwind and Create React App" />
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Navigation />
+      <Routes>
+        <Route path="/">
+          <Route index element={<Root />} />
+          <Route path="anime" element={<Anime />} />
+          <Route path="anime/:id" element={<AnimePlayer />} />
+          <Route path="search" element={<Search />} />
+          <Route path="*" element={<NoMatch />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
