@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, Routes, Route, useLocation } from "react-router-dom";
 import Player from "../components/Player";
 
-function EpisodePlayer({ episodeId, episodes }) {
+function EpisodePlayer({ episodes, setCurrentEpisode }) {
+  const { episodeId } = useParams();
   const [episode, setEpisode] = useState();
   useEffect(() => {
     const id = episodeId || episodes[0].id || null;
-    if (episodeId) {
+    if (id) {
       fetch(`https://api.consumet.org/anime/gogoanime/watch/${id}`)
         .then((res) => res.json())
         .then((data) => {
@@ -14,36 +15,39 @@ function EpisodePlayer({ episodeId, episodes }) {
         });
     }
   }, [episodeId, episodes]);
+
+  setCurrentEpisode(episodeId);
+
   const episodeUrl = episode?.sources.slice(-1)[0].url;
-  return <>{episode ? <Player source={episodeUrl} /> : <>loading</>}</>;
+  return <div>{episode ? <Player source={episodeUrl} /> : <>loading</>}</div>;
 }
+
 function Details({ content }) {
   return (
     <>
       {content ? (
         <>
-          <img src={content.image} alt={content.title} />
+          <img
+            src={content.image}
+            alt={content.title}
+            style={{ maxWidth: "400px" }}
+          />
           <div>{content.title}</div>
           <div>{content.description}</div>
         </>
       ) : null}
-    </>
+  </>
   );
 }
 
-function Episodes({ episodes, setTab }) {
+function Episodes({ episodes }) {
   return (
     <>
       {episodes?.map((episode) => {
         return (
-          <button
-            onClick={() => {
-              setTab(<EpisodePlayer episodeId={episode.id} />);
-            }}
-            key={episode.id}
-          >
+          <Link key={episode.id} to={`watch/${episode.id}`}>
             {episode.number}
-          </button>
+          </Link>
         );
       })}
     </>
@@ -53,18 +57,17 @@ function Episodes({ episodes, setTab }) {
 export default function AnimePlayer() {
   const { id } = useParams();
   const [content, setContent] = useState(null);
-
-  const [tab, setTab] = useState(<Details content={content} />);
+  const [currentEpisode, setCurrentEpisode] = useState(content?.episodes[0].id);
 
   const tabs = [
-    { name: "details", component: <Details content={content} /> },
+    { name: "details", href: "details" },
     {
       name: "episodes",
-      component: <Episodes episodes={content?.episodes} setTab={setTab} />,
+      href: "episodes",
     },
     {
       name: "player",
-      component: <EpisodePlayer episodes={content?.episodes} />,
+      href: `episodes/watch/${currentEpisode}`,
     },
   ];
 
@@ -72,6 +75,7 @@ export default function AnimePlayer() {
     fetch(`https://api.consumet.org/anime/gogoanime/info/${id}`)
       .then((res) => res.json())
       .then((data) => {
+        setCurrentEpisode(data?.episodes[0].id);
         setContent(data);
       });
   }, [id]);
@@ -81,13 +85,28 @@ export default function AnimePlayer() {
       <div className="flex flex-row">
         {tabs.map((tab) => {
           return (
-            <button onClick={() => setTab(tab.component)} key={tab.name}>
+            <Link to={tab.href} key={tab.name}>
               {tab.name}
-            </button>
+            </Link>
           );
         })}
       </div>
-      <div>{tab}</div>
+      <Routes>
+        <Route index element={<Details content={content} />} />
+        <Route path="details" element={<Details content={content} />} />
+        <Route path="episodes">
+          <Route index element={<Episodes episodes={content?.episodes} />} />
+          <Route
+            path="watch/:episodeId"
+            element={
+              <EpisodePlayer
+                episodes={content?.episodes}
+                setCurrentEpisode={setCurrentEpisode}
+              />
+            }
+          />
+        </Route>
+      </Routes>
     </div>
   );
 }

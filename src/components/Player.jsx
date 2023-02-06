@@ -19,6 +19,9 @@ export default function Player({ source }) {
       hls.on(Hls.Events.MANIFEST_PARSED, function () {
         video.play();
       });
+      return () => {
+        hls.destroy();
+      };
     } else {
       video.src = source;
     }

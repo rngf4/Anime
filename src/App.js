@@ -16,7 +16,7 @@ function App() {
         <Route path="/">
           <Route index element={<Root />} />
           <Route path="anime" element={<Anime />} />
-          <Route path="anime/:id" element={<AnimePlayer />} />
+          <Route path="anime/:id/*" element={<AnimePlayer />} />
           <Route path="search" element={<Search />} />
           <Route path="*" element={<NoMatch />} />
         </Route>

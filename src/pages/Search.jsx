@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import PageHook from "../components/PageHook";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Link } from "react-router-dom";
+import WebsiteHandler from "../websites";
 
 function AnimeCard({ id, image, title }) {
   return (
@@ -60,21 +61,23 @@ export default function Search() {
     setHasNextPage(false);
     setInputQuery(`${query}?page=${parseInt(currentPage) + 1}`);
   }
-
+  //grid-template-columns: repeat(4, minmax(0, 1fr)
   return (
     <PageHook>
       <div className="w-full flex flex-col items-center">
-        <input className="w-full color-white" onChange={handleQueryChange} />
-        <div className="flex flex-col items-center">
+        <input className="w-full text-black" onChange={handleQueryChange} />
+        <div className="w-full">
           <InfiniteScroll
             dataLength={results.length}
             next={loadNextPage}
             hasMore={hasNextPage}
             loader={<h4>loading</h4>}
           >
-            {results.map((result) => (
-              <AnimeCard {...result} key={result.id} />
-            ))}
+            <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {results.map((result) => (
+                <AnimeCard {...result} key={result.id} />
+              ))}
+            </div>
           </InfiniteScroll>
 
           {/*hasNextPage ? (
